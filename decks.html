@@ -107,7 +107,7 @@ async function addDeck(){
         capacity: Number(document.getElementById("addCapacity").value),
         mentorName: document.getElementById("addMentor").value
     };
-    const res = await fetch("${API_URL}/auth/gett", {
+    const res = await fetch(`${API_URL}/auth/gett`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)
@@ -117,14 +117,14 @@ async function addDeck(){
  
 async function getDeck(){
     const id = document.getElementById("getId").value;
-    const res = await fetch("${API_URL}/auth/gett/" + id);
+    const res = await fetch(`${API_URL}/auth/gett/` + id);
     document.getElementById("deckDetails").innerText = res.ok
         ? JSON.stringify(await res.json())
         : "Deck not found";
 }
  
 async function loadAllDecks(){
-    const res = await fetch("${API_URL}/auth/gett");
+    const res = await fetch(`${API_URL}/auth/gett`);
     const tbody = document.getElementById("deckBody");
     tbody.innerHTML = "";
     if (res.ok) {
@@ -143,7 +143,7 @@ async function updateDeck(){
         capacity: Number(document.getElementById("editCapacity").value),
         mentorName: document.getElementById("editMentor").value
     };
-    const res = await fetch("${API_URL}/auth/gett/" + id, {
+    const res = await fetch(`${API_URL}/auth/gett/` + id, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)
@@ -153,7 +153,7 @@ async function updateDeck(){
  
 async function deleteDeck(){
     const id = document.getElementById("deleteId").value;
-    const res = await fetch("${API_URL}/auth/gett/" + id, { method: "DELETE" });
+    const res = await fetch(`${API_URL}/auth/gett/` + id, { method: "DELETE" });
     msg(res.ok ? "Deck deleted successfully!" : "Failed: " + await res.text(), res.ok);
 }
 </script>
