@@ -110,7 +110,7 @@ async function addMetric(){
         intervalDays: Number(document.getElementById("addIntervalDays").value),
         nextReviewDate: document.getElementById("addNextReview").value
     };
-    const res = await fetch("${API_URL}/auth/saves", {
+    const res = await fetch(`${API_URL}/auth/saves`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)
@@ -120,14 +120,14 @@ async function addMetric(){
  
 async function getMetric(){
     const id = document.getElementById("getId").value;
-    const res = await fetch("${API_URL}/auth/gets/" + id);
+    const res = await fetch(`${API_URL}/auth/gets/` + id);
     document.getElementById("metDetails").innerText = res.ok
         ? JSON.stringify(await res.json())
         : "Metric not found";
 }
  
 async function loadAllMetrics(){
-    const res = await fetch("${API_URL}/auth/gets");
+    const res = await fetch(`${API_URL}/auth/gets`);
     const tbody = document.getElementById("metBody");
     tbody.innerHTML = "";
     if (res.ok) {
@@ -147,7 +147,7 @@ async function updateMetric(){
         intervalDays: Number(document.getElementById("editIntervalDays").value),
         nextReviewDate: document.getElementById("editNextReview").value
     };
-    const res = await fetch("${API_URL}/auth/gets/" + id, {
+    const res = await fetch(`${API_URL}/auth/gets/` + id, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)
@@ -157,7 +157,7 @@ async function updateMetric(){
  
 async function deleteMetric(){
     const id = document.getElementById("deleteId").value;
-    const res = await fetch("${API_URL}/auth/gets/" + id, { method: "DELETE" });
+    const res = await fetch(`${API_URL}/auth/gets/` + id, { method: "DELETE" });
     msg(res.ok ? "Metric deleted successfully!" : "Failed: " + await res.text(), res.ok);
 }
 </script>
