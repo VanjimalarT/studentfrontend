@@ -110,7 +110,7 @@ async function addUser(){
         password: document.getElementById("addPassword").value,
         role: document.getElementById("addRole").value
     };
-    const res = await fetch("${API_URL}/auth/geted", {
+    const res = await fetch(`${API_URL}/auth/geted`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)
@@ -120,14 +120,14 @@ async function addUser(){
  
 async function getUser(){
     const id = document.getElementById("getId").value;
-    const res = await fetch("${API_URL}/auth/geted/" + id);
+    const res = await fetch(`${API_URL}/auth/geted/` + id);
     document.getElementById("userDetails").innerText = res.ok
         ? JSON.stringify(await res.json())
         : "User not found";
 }
  
 async function loadAllUsers(){
-    const res = await fetch("${API_URL}/auth/geted");
+    const res = await fetch(`${API_URL}/auth/geted`);
     const tbody = document.getElementById("userBody");
     tbody.innerHTML = "";
     if (res.ok) {
@@ -145,7 +145,7 @@ async function updateUser(){
         password: document.getElementById("editPassword").value,
         role: document.getElementById("editRole").value
     };
-    const res = await fetch("${API_URL}/auth/geted/" + id, {
+    const res = await fetch(`${API_URL}/auth/geted/` + id, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)
@@ -155,7 +155,7 @@ async function updateUser(){
  
 async function deleteUser(){
     const id = document.getElementById("deleteId").value;
-    const res = await fetch("${API_URL}/auth/geted/" + id, { method: "DELETE" });
+    const res = await fetch(`${API_URL}/auth/geted/` + id, { method: "DELETE" });
     msg(res.ok ? "User deleted successfully!" : "Failed: " + await res.text(), res.ok);
 }
 </script>
