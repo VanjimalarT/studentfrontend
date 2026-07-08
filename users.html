@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Users - SkillSprint</title>
+<style>
+body{ font-family: Arial, sans-serif; background: white; }
+.head{ background: #333; color: white; padding: 15px; }
+.head a{ color: white; margin-right: 15px; }
+.head button{ float: right; padding: 8px 14px; background: red; color: white; border: none; cursor: pointer; }
+.button-group{ margin: 20px; }
+.bt{ padding: 8px 14px; margin-right: 8px; margin-bottom: 8px; background: blue; color: white; border: none; cursor: pointer; }
+.section{ display: none; margin: 20px; }
+.section input{ padding: 8px; width: 220px; margin: 5px 0; display: block; }
+.actionBtn{ padding: 8px 14px; background: green; color: white; border: none; cursor: pointer; }
+table{ border-collapse: collapse; margin-top: 10px; }
+table, th, td{ border: 1px solid #999; }
+th, td{ padding: 8px; text-align: left; }
+#message{ margin: 20px; font-weight: bold; }
+</style>
+</head>
+<body>
+ 
+<div class="head">
+    <h2>Users</h2>
+    <a href="dashboard.html">Back to Dashboard</a>
+    <button onclick="logout()">Logout</button>
+</div>
+ 
+<div class="operations">
+    <h2>User Operations</h2>
+    <div class="button-group">
+        <button class="bt" onclick="showSection('add')">Add User</button>
+        <button class="bt" onclick="showSection('get')">Get User By ID</button>
+        <button class="bt" onclick="showSection('getall')">Get All Users</button>
+        <button class="bt" onclick="showSection('edit')">Edit User</button>
+        <button class="bt" onclick="showSection('delete')">Delete User</button>
+    </div>
+ 
+    <div id="add" class="section">
+        <h3>Add User</h3>
+        <input type="text" id="addUsername" placeholder="Username">
+        <input type="password" id="addPassword" placeholder="Password">
+        <select id="addRole">
+            <option value="STUDENT">Student</option>
+            <option value="ADMIN">Admin</option>
+        </select>
+        <button class="actionBtn" onclick="addUser()">Add User</button>
+    </div>
+ 
+    <div id="get" class="section">
+        <h3>Get User By ID</h3>
+        <input type="number" id="getId" placeholder="User ID">
+        <button class="actionBtn" onclick="getUser()">Search</button>
+        <div id="userDetails"></div>
+    </div>
+ 
+    <div id="getall" class="section">
+        <h3>All Users</h3>
+        <table>
+            <thead><tr><th>ID</th><th>Username</th><th>Role</th></tr></thead>
+            <tbody id="userBody"></tbody>
+        </table>
+    </div>
+ 
+    <div id="edit" class="section">
+        <h3>Edit User</h3>
+        <input type="number" id="editId" placeholder="User ID">
+        <input type="text" id="editUsername" placeholder="New Username">
+        <input type="password" id="editPassword" placeholder="New Password">
+        <select id="editRole">
+            <option value="STUDENT">Student</option>
+            <option value="ADMIN">Admin</option>
+        </select>
+        <button class="actionBtn" onclick="updateUser()">Update User</button>
+    </div>
+ 
+    <div id="delete" class="section">
+        <h3>Delete User</h3>
+        <input type="number" id="deleteId" placeholder="User ID">
+        <button class="actionBtn" onclick="deleteUser()">Delete User</button>
+    </div>
+ 
+    <h3 id="message"></h3>
+</div>
+ 
+<script>
+    const API_URL = "https://studentbackend-tzzg.onrender.com";
+const token = localStorage.getItem("token");
+if (!token) { window.location.href = "login.html"; }
+ 
+function logout(){ localStorage.clear(); window.location.href = "login.html"; }
+ 
+function showSection(id){
+    document.getElementById("message").innerText = "";
+    document.querySelectorAll(".section").forEach(s => s.style.display = "none");
+    document.getElementById(id).style.display = "block";
+    if (id === "getall") loadAllUsers();
+}
+ 
+function msg(text, ok){
+    const el = document.getElementById("message");
+    el.style.color = ok ? "green" : "red";
+    el.innerText = text;
+}
+ 
+async function addUser(){
+    const body = {
+        username: document.getElementById("addUsername").value,
+        password: document.getElementById("addPassword").value,
+        role: document.getElementById("addRole").value
+    };
+    const res = await fetch("${API_URL}/auth/geted", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+    });
+    msg(res.ok ? "User added successfully!" : "Failed: " + await res.text(), res.ok);
+}
+ 
+async function getUser(){
+    const id = document.getElementById("getId").value;
+    const res = await fetch("${API_URL}/auth/geted/" + id);
+    document.getElementById("userDetails").innerText = res.ok
+        ? JSON.stringify(await res.json())
+        : "User not found";
+}
+ 
+async function loadAllUsers(){
+    const res = await fetch("${API_URL}/auth/geted");
+    const tbody = document.getElementById("userBody");
+    tbody.innerHTML = "";
+    if (res.ok) {
+        const list = await res.json();
+        list.forEach(u => {
+            tbody.innerHTML += `<tr><td>${u.id}</td><td>${u.username}</td><td>${u.role}</td></tr>`;
+        });
+    }
+}
+ 
+async function updateUser(){
+    const id = document.getElementById("editId").value;
+    const body = {
+        username: document.getElementById("editUsername").value,
+        password: document.getElementById("editPassword").value,
+        role: document.getElementById("editRole").value
+    };
+    const res = await fetch("${API_URL}/auth/geted/" + id, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+    });
+    msg(res.ok ? "User updated successfully!" : "Failed: " + await res.text(), res.ok);
+}
+ 
+async function deleteUser(){
+    const id = document.getElementById("deleteId").value;
+    const res = await fetch("${API_URL}/auth/geted/" + id, { method: "DELETE" });
+    msg(res.ok ? "User deleted successfully!" : "Failed: " + await res.text(), res.ok);
+}
+</script>
+ 
+</body>
+</html>

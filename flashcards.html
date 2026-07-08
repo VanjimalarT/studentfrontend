@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Flashcards - SkillSprint</title>
+<style>
+body{ font-family: Arial, sans-serif; background: white; }
+.head{ background: #333; color: white; padding: 15px; }
+.head a{ color: white; margin-right: 15px; }
+.head button{ float: right; padding: 8px 14px; background: red; color: white; border: none; cursor: pointer; }
+.button-group{ margin: 20px; }
+.bt{ padding: 8px 14px; margin-right: 8px; margin-bottom: 8px; background: blue; color: white; border: none; cursor: pointer; }
+.section{ display: none; margin: 20px; }
+.section input{ padding: 8px; width: 220px; margin: 5px 0; display: block; }
+.actionBtn{ padding: 8px 14px; background: green; color: white; border: none; cursor: pointer; }
+table{ border-collapse: collapse; margin-top: 10px; }
+table, th, td{ border: 1px solid #999; }
+th, td{ padding: 8px; text-align: left; }
+#message{ margin: 20px; font-weight: bold; }
+</style>
+</head>
+<body>
+ 
+<div class="head">
+    <h2>Flashcards</h2>
+    <a href="dashboard.html">Back to Dashboard</a>
+    <button onclick="logout()">Logout</button>
+</div>
+ 
+<div class="operations">
+    <h2>Flashcard Operations</h2>
+    <div class="button-group">
+        <button class="bt" onclick="showSection('add')">Add Flashcard</button>
+        <button class="bt" onclick="showSection('get')">Get Flashcard By ID</button>
+        <button class="bt" onclick="showSection('getall')">Get All Flashcards</button>
+        <button class="bt" onclick="showSection('edit')">Edit Flashcard</button>
+        <button class="bt" onclick="showSection('delete')">Delete Flashcard</button>
+    </div>
+ 
+    <div id="add" class="section">
+        <h3>Add Flashcard</h3>
+        <input type="number" id="addDeckId" placeholder="Deck ID">
+        <input type="text" id="addFront" placeholder="Front Content">
+        <input type="text" id="addBack" placeholder="Back Content">
+        <button class="actionBtn" onclick="addFlashcard()">Add Flashcard</button>
+    </div>
+ 
+    <div id="get" class="section">
+        <h3>Get Flashcard By ID</h3>
+        <input type="number" id="getId" placeholder="Flashcard ID">
+        <button class="actionBtn" onclick="getFlashcard()">Search</button>
+        <div id="cardDetails"></div>
+    </div>
+ 
+    <div id="getall" class="section">
+        <h3>All Flashcards</h3>
+        <table>
+            <thead><tr><th>ID</th><th>Deck ID</th><th>Front</th><th>Back</th></tr></thead>
+            <tbody id="cardBody"></tbody>
+        </table>
+    </div>
+ 
+    <div id="edit" class="section">
+        <h3>Edit Flashcard</h3>
+        <input type="number" id="editId" placeholder="Flashcard ID">
+        <input type="number" id="editDeckId" placeholder="New Deck ID">
+        <input type="text" id="editFront" placeholder="New Front Content">
+        <input type="text" id="editBack" placeholder="New Back Content">
+        <button class="actionBtn" onclick="updateFlashcard()">Update Flashcard</button>
+    </div>
+ 
+    <div id="delete" class="section">
+        <h3>Delete Flashcard</h3>
+        <input type="number" id="deleteId" placeholder="Flashcard ID">
+        <button class="actionBtn" onclick="deleteFlashcard()">Delete Flashcard</button>
+    </div>
+ 
+    <h3 id="message"></h3>
+</div>
+ 
+<script>
+    const API_URL = "https://studentbackend-tzzg.onrender.com";
+const token = localStorage.getItem("token");
+if (!token) { window.location.href = "login.html"; }
+ 
+function logout(){ localStorage.clear(); window.location.href = "login.html"; }
+ 
+function showSection(id){
+    document.getElementById("message").innerText = "";
+    document.querySelectorAll(".section").forEach(s => s.style.display = "none");
+    document.getElementById(id).style.display = "block";
+    if (id === "getall") loadAllFlashcards();
+}
+ 
+function msg(text, ok){
+    const el = document.getElementById("message");
+    el.style.color = ok ? "green" : "red";
+    el.innerText = text;
+}
+ 
+async function addFlashcard(){
+    const body = {
+        deckId: Number(document.getElementById("addDeckId").value),
+        frontContent: document.getElementById("addFront").value,
+        backContent: document.getElementById("addBack").value
+    };
+    const res = await fetch("${API_URL}/auth/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+    });
+    msg(res.ok ? "Flashcard added successfully!" : "Failed: " + await res.text(), res.ok);
+}
+ 
+async function getFlashcard(){
+    const id = document.getElementById("getId").value;
+    const res = await fetch("${API_URL}/auth/get/" + id);
+    document.getElementById("cardDetails").innerText = res.ok
+        ? JSON.stringify(await res.json())
+        : "Flashcard not found";
+}
+ 
+async function loadAllFlashcards(){
+    const res = await fetch("${API_URL}/auth/get");
+    const tbody = document.getElementById("cardBody");
+    tbody.innerHTML = "";
+    if (res.ok) {
+        const list = await res.json();
+        list.forEach(c => {
+            tbody.innerHTML += `<tr><td>${c.id}</td><td>${c.deckId}</td><td>${c.frontContent}</td><td>${c.backContent}</td></tr>`;
+        });
+    }
+}
+ 
+async function updateFlashcard(){
+    const id = document.getElementById("editId").value;
+    const body = {
+        deckId: Number(document.getElementById("editDeckId").value),
+        frontContent: document.getElementById("editFront").value,
+        backContent: document.getElementById("editBack").value
+    };
+    const res = await fetch("${API_URL}/auth/get/" + id, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+    });
+    msg(res.ok ? "Flashcard updated successfully!" : "Failed: " + await res.text(), res.ok);
+}
+ 
+async function deleteFlashcard(){
+    const id = document.getElementById("deleteId").value;
+    const res = await fetch("${API_URL}/auth/get/" + id, { method: "DELETE" });
+    msg(res.ok ? "Flashcard deleted successfully!" : "Failed: " + await res.text(), res.ok);
+}
+</script>
+ 
+</body>
+</html>

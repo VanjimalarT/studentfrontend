@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Study Sessions - SkillSprint</title>
+<style>
+body{ font-family: Arial, sans-serif; background: white; }
+.head{ background: #333; color: white; padding: 15px; }
+.head a{ color: white; margin-right: 15px; }
+.head button{ float: right; padding: 8px 14px; background: red; color: white; border: none; cursor: pointer; }
+.button-group{ margin: 20px; }
+.bt{ padding: 8px 14px; margin-right: 8px; margin-bottom: 8px; background: blue; color: white; border: none; cursor: pointer; }
+.section{ display: none; margin: 20px; }
+.section input{ padding: 8px; width: 220px; margin: 5px 0; display: block; }
+.actionBtn{ padding: 8px 14px; background: green; color: white; border: none; cursor: pointer; }
+table{ border-collapse: collapse; margin-top: 10px; }
+table, th, td{ border: 1px solid #999; }
+th, td{ padding: 8px; text-align: left; }
+#message{ margin: 20px; font-weight: bold; }
+</style>
+</head>
+<body>
+ 
+<div class="head">
+    <h2>Study Sessions</h2>
+    <a href="dashboard.html">Back to Dashboard</a>
+    <button onclick="logout()">Logout</button>
+</div>
+ 
+<div class="operations">
+    <h2>Study Session Operations</h2>
+    <div class="button-group">
+        <button class="bt" onclick="showSection('add')">Add Session</button>
+        <button class="bt" onclick="showSection('get')">Get Session By ID</button>
+        <button class="bt" onclick="showSection('getall')">Get All Sessions</button>
+        <button class="bt" onclick="showSection('edit')">Edit Session</button>
+        <button class="bt" onclick="showSection('delete')">Delete Session</button>
+    </div>
+ 
+    <div id="add" class="section">
+        <h3>Add Session</h3>
+        <input type="number" id="addUserId" placeholder="User ID">
+        <input type="number" id="addDeckId" placeholder="Deck ID">
+        <input type="datetime-local" id="addStart" placeholder="Start Time">
+        <input type="datetime-local" id="addEnd" placeholder="End Time">
+        <input type="number" id="addScore" placeholder="Score">
+        <button class="actionBtn" onclick="addSession()">Add Session</button>
+    </div>
+ 
+    <div id="get" class="section">
+        <h3>Get Session By ID</h3>
+        <input type="number" id="getId" placeholder="Session ID">
+        <button class="actionBtn" onclick="getSession()">Search</button>
+        <div id="sessDetails"></div>
+    </div>
+ 
+    <div id="getall" class="section">
+        <h3>All Sessions</h3>
+        <table>
+            <thead><tr><th>ID</th><th>User</th><th>Deck</th><th>Start</th><th>End</th><th>Score</th></tr></thead>
+            <tbody id="sessBody"></tbody>
+        </table>
+    </div>
+ 
+    <div id="edit" class="section">
+        <h3>Edit Session</h3>
+        <input type="number" id="editId" placeholder="Session ID">
+        <input type="number" id="editUserId" placeholder="New User ID">
+        <input type="number" id="editDeckId" placeholder="New Deck ID">
+        <input type="datetime-local" id="editStart" placeholder="New Start Time">
+        <input type="datetime-local" id="editEnd" placeholder="New End Time">
+        <input type="number" id="editScore" placeholder="New Score">
+        <button class="actionBtn" onclick="updateSession()">Update Session</button>
+    </div>
+ 
+    <div id="delete" class="section">
+        <h3>Delete Session</h3>
+        <input type="number" id="deleteId" placeholder="Session ID">
+        <button class="actionBtn" onclick="deleteSession()">Delete Session</button>
+    </div>
+ 
+    <h3 id="message"></h3>
+</div>
+ 
+<script>
+    const API_URL = "https://studentbackend-tzzg.onrender.com";
+const token = localStorage.getItem("token");
+if (!token) { window.location.href = "login.html"; }
+ 
+function logout(){ localStorage.clear(); window.location.href = "login.html"; }
+ 
+function showSection(id){
+    document.getElementById("message").innerText = "";
+    document.querySelectorAll(".section").forEach(s => s.style.display = "none");
+    document.getElementById(id).style.display = "block";
+    if (id === "getall") loadAllSessions();
+}
+ 
+function msg(text, ok){
+    const el = document.getElementById("message");
+    el.style.color = ok ? "green" : "red";
+    el.innerText = text;
+}
+ 
+async function addSession(){
+    const body = {
+        userId: Number(document.getElementById("addUserId").value),
+        deckId: Number(document.getElementById("addDeckId").value),
+        startTime: document.getElementById("addStart").value,
+        endTime: document.getElementById("addEnd").value,
+        score: Number(document.getElementById("addScore").value)
+    };
+    const res = await fetch("${API_URL}/auth/getter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+    });
+    msg(res.ok ? "Session added successfully!" : "Failed: " + await res.text(), res.ok);
+}
+ 
+async function getSession(){
+    const id = document.getElementById("getId").value;
+    const res = await fetch("${API_URL}/auth/getter/" + id);
+    document.getElementById("sessDetails").innerText = res.ok
+        ? JSON.stringify(await res.json())
+        : "Session not found";
+}
+ 
+async function loadAllSessions(){
+    const res = await fetch("${API_URL}/auth/getter");
+    const tbody = document.getElementById("sessBody");
+    tbody.innerHTML = "";
+    if (res.ok) {
+        const list = await res.json();
+        list.forEach(s => {
+            tbody.innerHTML += `<tr><td>${s.id}</td><td>${s.userId}</td><td>${s.deckId}</td><td>${s.startTime}</td><td>${s.endTime}</td><td>${s.score}</td></tr>`;
+        });
+    }
+}
+ 
+async function updateSession(){
+    const id = document.getElementById("editId").value;
+    const body = {
+        userId: Number(document.getElementById("editUserId").value),
+        deckId: Number(document.getElementById("editDeckId").value),
+        startTime: document.getElementById("editStart").value,
+        endTime: document.getElementById("editEnd").value,
+        score: Number(document.getElementById("editScore").value)
+    };
+    const res = await fetch("${API_URL}/auth/getter/" + id, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+    });
+    msg(res.ok ? "Session updated successfully!" : "Failed: " + await res.text(), res.ok);
+}
+ 
+async function deleteSession(){
+    const id = document.getElementById("deleteId").value;
+    const res = await fetch("${API_URL}/auth/getter/" + id, { method: "DELETE" });
+    msg(res.ok ? "Session deleted successfully!" : "Failed: " + await res.text(), res.ok);
+}
+</script>
+ 
+</body>
+</html>

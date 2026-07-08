@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Retention Metrics - SkillSprint</title>
+<style>
+body{ font-family: Arial, sans-serif; background: white; }
+.head{ background: #333; color: white; padding: 15px; }
+.head a{ color: white; margin-right: 15px; }
+.head button{ float: right; padding: 8px 14px; background: red; color: white; border: none; cursor: pointer; }
+.button-group{ margin: 20px; }
+.bt{ padding: 8px 14px; margin-right: 8px; margin-bottom: 8px; background: blue; color: white; border: none; cursor: pointer; }
+.section{ display: none; margin: 20px; }
+.section input{ padding: 8px; width: 220px; margin: 5px 0; display: block; }
+.actionBtn{ padding: 8px 14px; background: green; color: white; border: none; cursor: pointer; }
+table{ border-collapse: collapse; margin-top: 10px; }
+table, th, td{ border: 1px solid #999; }
+th, td{ padding: 8px; text-align: left; }
+#message{ margin: 20px; font-weight: bold; }
+</style>
+</head>
+<body>
+ 
+<div class="head">
+    <h2>Retention Metrics</h2>
+    <a href="dashboard.html">Back to Dashboard</a>
+    <button onclick="logout()">Logout</button>
+</div>
+ 
+<div class="operations">
+    <h2>Retention Metric Operations</h2>
+    <div class="button-group">
+        <button class="bt" onclick="showSection('add')">Add Metric</button>
+        <button class="bt" onclick="showSection('get')">Get Metric By ID</button>
+        <button class="bt" onclick="showSection('getall')">Get All Metrics</button>
+        <button class="bt" onclick="showSection('edit')">Edit Metric</button>
+        <button class="bt" onclick="showSection('delete')">Delete Metric</button>
+    </div>
+ 
+    <div id="add" class="section">
+        <h3>Add Metric</h3>
+        <input type="number" id="addUserId" placeholder="User ID">
+        <input type="number" id="addCardId" placeholder="Card (Flashcard) ID">
+        <input type="number" step="0.01" id="addEaseFactor" placeholder="Ease Factor (e.g. 2.5)">
+        <input type="number" id="addIntervalDays" placeholder="Interval Days">
+        <input type="datetime-local" id="addNextReview" placeholder="Next Review Date">
+        <button class="actionBtn" onclick="addMetric()">Add Metric</button>
+    </div>
+ 
+    <div id="get" class="section">
+        <h3>Get Metric By ID</h3>
+        <input type="number" id="getId" placeholder="Metric ID">
+        <button class="actionBtn" onclick="getMetric()">Search</button>
+        <div id="metDetails"></div>
+    </div>
+ 
+    <div id="getall" class="section">
+        <h3>All Metrics</h3>
+        <table>
+            <thead><tr><th>ID</th><th>User</th><th>Card</th><th>Ease</th><th>Interval</th><th>Next Review</th></tr></thead>
+            <tbody id="metBody"></tbody>
+        </table>
+    </div>
+ 
+    <div id="edit" class="section">
+        <h3>Edit Metric</h3>
+        <input type="number" id="editId" placeholder="Metric ID">
+        <input type="number" id="editUserId" placeholder="New User ID">
+        <input type="number" id="editCardId" placeholder="New Card ID">
+        <input type="number" step="0.01" id="editEaseFactor" placeholder="New Ease Factor">
+        <input type="number" id="editIntervalDays" placeholder="New Interval Days">
+        <input type="datetime-local" id="editNextReview" placeholder="New Next Review Date">
+        <button class="actionBtn" onclick="updateMetric()">Update Metric</button>
+    </div>
+ 
+    <div id="delete" class="section">
+        <h3>Delete Metric</h3>
+        <input type="number" id="deleteId" placeholder="Metric ID">
+        <button class="actionBtn" onclick="deleteMetric()">Delete Metric</button>
+    </div>
+ 
+    <h3 id="message"></h3>
+</div>
+ 
+<script>
+    const API_URL = "https://studentbackend-tzzg.onrender.com";
+const token = localStorage.getItem("token");
+if (!token) { window.location.href = "login.html"; }
+ 
+function logout(){ localStorage.clear(); window.location.href = "login.html"; }
+ 
+function showSection(id){
+    document.getElementById("message").innerText = "";
+    document.querySelectorAll(".section").forEach(s => s.style.display = "none");
+    document.getElementById(id).style.display = "block";
+    if (id === "getall") loadAllMetrics();
+}
+ 
+function msg(text, ok){
+    const el = document.getElementById("message");
+    el.style.color = ok ? "green" : "red";
+    el.innerText = text;
+}
+ 
+async function addMetric(){
+    const body = {
+        userId: Number(document.getElementById("addUserId").value),
+        cardId: Number(document.getElementById("addCardId").value),
+        easeFactor: Number(document.getElementById("addEaseFactor").value),
+        intervalDays: Number(document.getElementById("addIntervalDays").value),
+        nextReviewDate: document.getElementById("addNextReview").value
+    };
+    const res = await fetch("${API_URL}/auth/saves", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+    });
+    msg(res.ok ? "Metric added successfully!" : "Failed: " + await res.text(), res.ok);
+}
+ 
+async function getMetric(){
+    const id = document.getElementById("getId").value;
+    const res = await fetch("${API_URL}/auth/gets/" + id);
+    document.getElementById("metDetails").innerText = res.ok
+        ? JSON.stringify(await res.json())
+        : "Metric not found";
+}
+ 
+async function loadAllMetrics(){
+    const res = await fetch("${API_URL}/auth/gets");
+    const tbody = document.getElementById("metBody");
+    tbody.innerHTML = "";
+    if (res.ok) {
+        const list = await res.json();
+        list.forEach(m => {
+            tbody.innerHTML += `<tr><td>${m.id}</td><td>${m.userId}</td><td>${m.cardId}</td><td>${m.easeFactor}</td><td>${m.intervalDays}</td><td>${m.nextReviewDate}</td></tr>`;
+        });
+    }
+}
+ 
+async function updateMetric(){
+    const id = document.getElementById("editId").value;
+    const body = {
+        userId: Number(document.getElementById("editUserId").value),
+        cardId: Number(document.getElementById("editCardId").value),
+        easeFactor: Number(document.getElementById("editEaseFactor").value),
+        intervalDays: Number(document.getElementById("editIntervalDays").value),
+        nextReviewDate: document.getElementById("editNextReview").value
+    };
+    const res = await fetch("${API_URL}/auth/gets/" + id, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+    });
+    msg(res.ok ? "Metric updated successfully!" : "Failed: " + await res.text(), res.ok);
+}
+ 
+async function deleteMetric(){
+    const id = document.getElementById("deleteId").value;
+    const res = await fetch("${API_URL}/auth/gets/" + id, { method: "DELETE" });
+    msg(res.ok ? "Metric deleted successfully!" : "Failed: " + await res.text(), res.ok);
+}
+</script>
+ 
+</body>
+</html>

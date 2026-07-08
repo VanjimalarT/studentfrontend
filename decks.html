@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Study Decks - SkillSprint</title>
+<style>
+body{ font-family: Arial, sans-serif; background: white; }
+.head{ background: #333; color: white; padding: 15px; }
+.head a{ color: white; margin-right: 15px; }
+.head button{ float: right; padding: 8px 14px; background: red; color: white; border: none; cursor: pointer; }
+.button-group{ margin: 20px; }
+.bt{ padding: 8px 14px; margin-right: 8px; margin-bottom: 8px; background: blue; color: white; border: none; cursor: pointer; }
+.section{ display: none; margin: 20px; }
+.section input{ padding: 8px; width: 220px; margin: 5px 0; display: block; }
+.actionBtn{ padding: 8px 14px; background: green; color: white; border: none; cursor: pointer; }
+table{ border-collapse: collapse; margin-top: 10px; }
+table, th, td{ border: 1px solid #999; }
+th, td{ padding: 8px; text-align: left; }
+#message{ margin: 20px; font-weight: bold; }
+</style>
+</head>
+<body>
+ 
+<div class="head">
+    <h2>Study Decks</h2>
+    <a href="dashboard.html">Back to Dashboard</a>
+    <button onclick="logout()">Logout</button>
+</div>
+ 
+<div class="operations">
+    <h2>Study Deck Operations</h2>
+    <div class="button-group">
+        <button class="bt" onclick="showSection('add')">Add Deck</button>
+        <button class="bt" onclick="showSection('get')">Get Deck By ID</button>
+        <button class="bt" onclick="showSection('getall')">Get All Decks</button>
+        <button class="bt" onclick="showSection('edit')">Edit Deck</button>
+        <button class="bt" onclick="showSection('delete')">Delete Deck</button>
+    </div>
+ 
+    <div id="add" class="section">
+        <h3>Add Deck</h3>
+        <input type="text" id="addTitle" placeholder="Title">
+        <input type="text" id="addDescription" placeholder="Description">
+        <input type="number" id="addCapacity" placeholder="Capacity">
+        <input type="text" id="addMentor" placeholder="Mentor Name">
+        <button class="actionBtn" onclick="addDeck()">Add Deck</button>
+    </div>
+ 
+    <div id="get" class="section">
+        <h3>Get Deck By ID</h3>
+        <input type="number" id="getId" placeholder="Deck ID">
+        <button class="actionBtn" onclick="getDeck()">Search</button>
+        <div id="deckDetails"></div>
+    </div>
+ 
+    <div id="getall" class="section">
+        <h3>All Decks</h3>
+        <table>
+            <thead><tr><th>ID</th><th>Title</th><th>Description</th><th>Capacity</th><th>Mentor</th></tr></thead>
+            <tbody id="deckBody"></tbody>
+        </table>
+    </div>
+ 
+    <div id="edit" class="section">
+        <h3>Edit Deck</h3>
+        <input type="number" id="editId" placeholder="Deck ID">
+        <input type="text" id="editTitle" placeholder="New Title">
+        <input type="text" id="editDescription" placeholder="New Description">
+        <input type="number" id="editCapacity" placeholder="New Capacity">
+        <input type="text" id="editMentor" placeholder="New Mentor Name">
+        <button class="actionBtn" onclick="updateDeck()">Update Deck</button>
+    </div>
+ 
+    <div id="delete" class="section">
+        <h3>Delete Deck</h3>
+        <input type="number" id="deleteId" placeholder="Deck ID">
+        <button class="actionBtn" onclick="deleteDeck()">Delete Deck</button>
+    </div>
+ 
+    <h3 id="message"></h3>
+</div>
+ 
+<script>
+const API_URL = "https://studentbackend-tzzg.onrender.com";
+const token = localStorage.getItem("token");
+if (!token) { window.location.href = "login.html"; }
+ 
+function logout(){ localStorage.clear(); window.location.href = "login.html"; }
+ 
+function showSection(id){
+    document.getElementById("message").innerText = "";
+    document.querySelectorAll(".section").forEach(s => s.style.display = "none");
+    document.getElementById(id).style.display = "block";
+    if (id === "getall") loadAllDecks();
+}
+ 
+function msg(text, ok){
+    const el = document.getElementById("message");
+    el.style.color = ok ? "green" : "red";
+    el.innerText = text;
+}
+ 
+async function addDeck(){
+    const body = {
+        title: document.getElementById("addTitle").value,
+        description: document.getElementById("addDescription").value,
+        capacity: Number(document.getElementById("addCapacity").value),
+        mentorName: document.getElementById("addMentor").value
+    };
+    const res = await fetch("${API_URL}/auth/gett", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+    });
+    msg(res.ok ? "Deck added successfully!" : "Failed: " + await res.text(), res.ok);
+}
+ 
+async function getDeck(){
+    const id = document.getElementById("getId").value;
+    const res = await fetch("${API_URL}/auth/gett/" + id);
+    document.getElementById("deckDetails").innerText = res.ok
+        ? JSON.stringify(await res.json())
+        : "Deck not found";
+}
+ 
+async function loadAllDecks(){
+    const res = await fetch("${API_URL}/auth/gett");
+    const tbody = document.getElementById("deckBody");
+    tbody.innerHTML = "";
+    if (res.ok) {
+        const list = await res.json();
+        list.forEach(d => {
+            tbody.innerHTML += `<tr><td>${d.id}</td><td>${d.title}</td><td>${d.description}</td><td>${d.capacity}</td><td>${d.mentorName}</td></tr>`;
+        });
+    }
+}
+ 
+async function updateDeck(){
+    const id = document.getElementById("editId").value;
+    const body = {
+        title: document.getElementById("editTitle").value,
+        description: document.getElementById("editDescription").value,
+        capacity: Number(document.getElementById("editCapacity").value),
+        mentorName: document.getElementById("editMentor").value
+    };
+    const res = await fetch("${API_URL}/auth/gett/" + id, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+    });
+    msg(res.ok ? "Deck updated successfully!" : "Failed: " + await res.text(), res.ok);
+}
+ 
+async function deleteDeck(){
+    const id = document.getElementById("deleteId").value;
+    const res = await fetch("${API_URL}/auth/gett/" + id, { method: "DELETE" });
+    msg(res.ok ? "Deck deleted successfully!" : "Failed: " + await res.text(), res.ok);
+}
+</script>
+ 
+</body>
+</html>

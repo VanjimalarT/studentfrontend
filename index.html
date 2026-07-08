@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillSprint — Learn less, retain more</title>
+<style>
+  :root {
+    --ink: #16201b;
+    --cream: #faf8f3;
+    --line: #e4e0d4;
+    --moss: #2f5d4c;
+    --moss-dim: #6b8a7c;
+    --gold: #c79a44;
+    --paper: #f2efe6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+    background: var(--cream);
+    overflow-x: hidden;
+  }
+ 
+  /* ---- Top nav ---- */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 40px;
+    border-bottom: 1px solid var(--line);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: rgba(250, 248, 243, 0.92);
+    backdrop-filter: blur(6px);
+  }
+  nav .links { display: flex; gap: 28px; }
+  nav .links a { color: var(--ink); text-decoration: none; position: relative; }
+  nav .links a:hover { color: var(--moss); }
+  nav .brand {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 20px;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  nav .brand::before {
+    content: "";
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--gold);
+    display: inline-block;
+  }
+  nav .right { display: flex; gap: 20px; }
+  nav .right a {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+  }
+  nav .right a:hover { border-color: var(--ink); }
+  nav .right a.primary {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 8px 16px;
+    border-bottom: none;
+  }
+  nav .right a.primary:hover { background: var(--moss); }
+ 
+  section { position: relative; }
+ 
+  /* ---- Hero ---- */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 560px;
+  }
+  .hero-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px 80px;
+  }
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--moss);
+    font-weight: 700;
+    margin-bottom: 18px;
+  }
+  .hero-text h1 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 44px;
+    line-height: 1.18;
+    font-weight: 700;
+    margin-bottom: 22px;
+  }
+  .hero-text p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #4a544d;
+    max-width: 420px;
+    margin-bottom: 32px;
+  }
+  .hero-stats {
+    display: flex;
+    gap: 36px;
+    margin-bottom: 34px;
+  }
+  .hero-stats div strong {
+    display: block;
+    font-family: Georgia, serif;
+    font-size: 24px;
+    color: var(--moss);
+  }
+  .hero-stats div span {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #78806f;
+  }
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 700;
+    text-decoration: none;
+    color: var(--ink);
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 4px;
+    width: fit-content;
+    transition: color .2s ease, border-color .2s ease, gap .2s ease;
+  }
+  .cta:hover { color: var(--moss); border-color: var(--moss); gap: 13px; }
+ 
+  .hero-image {
+    background-size: cover;
+    background-position: center;
+    background-image: url("https://images.unsplash.com/photo-1741699428220-65f37f3fbbcb?fm=jpg&q=70&w=1400&auto=format&fit=crop");
+  }
+ 
+  /* ---- Feature strip ---- */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .features div {
+    padding: 32px 28px;
+    border-right: 1px solid var(--line);
+  }
+  .features div:last-child { border-right: none; }
+  .features h3 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+  .features p {
+    font-size: 13px;
+    color: #5b665f;
+    line-height: 1.5;
+  }
+ 
+  /* ---- Section headers (shared) ---- */
+  .section-head {
+    padding: 90px 40px 20px;
+    text-align: center;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .section-head .eyebrow { justify-content: center; display: flex; }
+  .section-head h2 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 34px;
+    line-height: 1.25;
+    margin-bottom: 14px;
+  }
+  .section-head p {
+    font-size: 14.5px;
+    line-height: 1.7;
+    color: #4a544d;
+  }
+ 
+  /* ---- Roadmap ---- */
+  .roadmap {
+    position: relative;
+    padding: 40px 40px 60px;
+    max-width: 1040px;
+    margin: 0 auto;
+  }
+  .trail-svg {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    height: 100%;
+    width: 60px;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .trail-path-bg { fill: none; stroke: var(--line); stroke-width: 3; }
+  .trail-path-fg {
+    fill: none;
+    stroke: var(--moss);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 3000;
+    stroke-dashoffset: 3000;
+  }
+ 
+  .waypoint {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr 100px 1fr;
+    align-items: center;
+    gap: 0 36px;
+    padding: 46px 0;
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity .7s ease, transform .7s ease;
+  }
+  .waypoint.in-view { opacity: 1; transform: translateY(0); }
+ 
+  .waypoint .stage-marker {
+    grid-column: 2;
+    justify-self: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--cream);
+    border: 2px solid var(--moss);
+    color: var(--moss);
+    font-family: Georgia, serif;
+    font-weight: 700;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .4s ease, color .4s ease;
+  }
+  .waypoint.in-view .stage-marker {
+    background: var(--moss);
+    color: var(--cream);
+  }
+ 
+  .waypoint .wp-copy {
+    grid-column: 1;
+    padding-right: 20px;
+    text-align: right;
+  }
+  .waypoint .wp-media {
+    grid-column: 3;
+  }
+  .waypoint.reverse .wp-copy {
+    grid-column: 3;
+    text-align: left;
+    padding-right: 0;
+    padding-left: 20px;
+  }
+  .waypoint.reverse .wp-media { grid-column: 1; }
+ 
+  .wp-copy .stage-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .wp-copy h3 {
+    font-family: Georgia, serif;
+    font-size: 23px;
+    margin-bottom: 10px;
+  }
+  .wp-copy p {
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: #4a544d;
+  }
+  .waypoint.reverse .wp-copy { margin-left: 0; }
+ 
+  .wp-media img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+  }
+ 
+  /* ---- Why it works panel ---- */
+  .why-panel {
+    background: var(--paper);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 70px 40px;
+  }
+  .why-grid {
+    max-width: 980px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 40px;
+  }
+  .why-grid figure {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity .6s ease, transform .6s ease;
+  }
+  .why-grid figure.in-view { opacity: 1; transform: translateY(0); }
+  .why-grid strong {
+    display: block;
+    font-family: Georgia, serif;
+    font-size: 32px;
+    color: var(--moss);
+    margin-bottom: 6px;
+  }
+  .why-grid span {
+    font-size: 13px;
+    color: #5b665f;
+    line-height: 1.5;
+    display: block;
+  }
+ 
+  /* ---- CTA banner ---- */
+  .cta-banner {
+    text-align: center;
+    padding: 90px 40px;
+  }
+  .cta-banner h2 {
+    font-family: Georgia, serif;
+    font-size: 30px;
+    margin-bottom: 20px;
+  }
+  .cta-banner .cta {
+    margin: 0 auto;
+    border: 1px solid var(--ink);
+    padding: 12px 26px;
+    border-bottom: 1px solid var(--ink);
+  }
+ 
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 50px 40px 26px;
+  }
+  .footer-grid {
+    max-width: 1040px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 30px;
+    padding-bottom: 30px;
+  }
+  .footer-grid .brand {
+    font-family: Georgia, serif;
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  .footer-grid p { font-size: 13px; color: #5b665f; line-height: 1.6; max-width: 280px; }
+  .footer-grid h4 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+    color: #78806f;
+  }
+  .footer-grid ul { list-style: none; }
+  .footer-grid li { margin-bottom: 8px; }
+  .footer-grid a { color: var(--ink); text-decoration: none; font-size: 13px; }
+  .footer-grid a:hover { color: var(--moss); }
+  footer .bottom {
+    text-align: center;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+    color: #8a9089;
+  }
+ 
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-image { min-height: 320px; order: -1; }
+    .features { grid-template-columns: 1fr 1fr; }
+    nav .links { display: none; }
+    .trail-svg { left: 20px; transform: none; width: 40px; }
+    .waypoint, .waypoint.reverse {
+      grid-template-columns: 1fr;
+      padding-left: 60px;
+      text-align: left !important;
+    }
+    .waypoint .stage-marker, .waypoint.reverse .stage-marker {
+      grid-column: 1;
+      position: absolute;
+      left: -60px;
+      width: 46px;
+      height: 46px;
+      font-size: 15px;
+    }
+    .waypoint .wp-copy, .waypoint.reverse .wp-copy,
+    .waypoint .wp-media, .waypoint.reverse .wp-media {
+      grid-column: 1;
+      padding: 0 0 16px 0 !important;
+      text-align: left !important;
+    }
+    .why-grid { grid-template-columns: 1fr; gap: 26px; }
+    .footer-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+ 
+  <nav>
+    <div class="brand">SkillSprint</div>
+    <div class="links">
+      <a href="#features">Features</a>
+      <a href="#roadmap">How it works</a>
+      <a href="#why">Why it works</a>
+    </div>
+    <div class="right">
+      <a href="login.html">Login</a>
+      <a href="register.html" class="primary">Register</a>
+    </div>
+  </nav>
+ 
+  <section class="hero">
+    <div class="hero-text">
+      <div class="eyebrow">Study Smarter</div>
+      <h1>Learn Less,<br>Retain More.</h1>
+      <p>
+        SkillSprint helps you organize study decks, review flashcards,
+        and track how well you're actually retaining what you learn —
+        so your study time works harder for you.
+      </p>
+      <div class="hero-stats">
+        <div><strong>4×</strong><span>Faster recall</span></div>
+        <div><strong>92%</strong><span>Retention after 30 days</span></div>
+        <div><strong>10k+</strong><span>Decks created</span></div>
+      </div>
+      <a href="register.html" class="cta">Get Started →</a>
+    </div>
+    <div class="hero-image"></div>
+  </section>
+ 
+  <div class="features" id="features">
+    <div>
+      <h3>Study Decks</h3>
+      <p>Group flashcards by subject or topic.</p>
+    </div>
+    <div>
+      <h3>Flashcards</h3>
+      <p>Quick question-and-answer recall practice.</p>
+    </div>
+    <div>
+      <h3>Study Sessions</h3>
+      <p>Log sessions to build a consistent habit.</p>
+    </div>
+    <div>
+      <h3>Retention Metrics</h3>
+      <p>See how well material sticks over time.</p>
+    </div>
+  </div>
+ 
+  <section id="roadmap">
+    <div class="section-head">
+      <div class="eyebrow">The Trail</div>
+      <h2>Your study journey, mapped out</h2>
+      <p>SkillSprint follows the same path every time you learn something new — from building a deck to proving you'll still remember it next month. Scroll to walk the trail.</p>
+    </div>
+ 
+    <div class="roadmap" id="roadmap-track">
+      <svg class="trail-svg" id="trail-svg" viewBox="0 0 60 2000" preserveAspectRatio="none">
+        <path class="trail-path-bg" d="M30,0 C30,150 10,200 10,350 C10,500 50,550 50,700 C50,850 10,900 10,1050 C10,1200 50,1250 50,1400 C50,1550 30,1600 30,2000" />
+        <path class="trail-path-fg" id="trail-fg" d="M30,0 C30,150 10,200 10,350 C10,500 50,550 50,700 C50,850 10,900 10,1050 C10,1200 50,1250 50,1400 C50,1550 30,1600 30,2000" />
+      </svg>
+ 
+      <div class="waypoint">
+        <div class="wp-copy">
+          <div class="stage-label">Stage 01 — Build</div>
+          <h3>Create your deck</h3>
+          <p>Group flashcards by subject, unit, or exam. Bring your own notes or start from a blank deck — SkillSprint keeps everything organized in one place.</p>
+        </div>
+        <div class="stage-marker">01</div>
+        <div class="wp-media">
+          <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=800&auto=format&fit=crop" alt="Notebook and pen used to plan a study deck">
+        </div>
+      </div>
+ 
+      <div class="waypoint reverse">
+        <div class="wp-copy">
+          <div class="stage-label">Stage 02 — Sprint</div>
+          <h3>Review flashcards</h3>
+          <p>Quick question-and-answer recall drills, timed and focused. Every card you flip tells SkillSprint a little more about what's actually sticking.</p>
+        </div>
+        <div class="stage-marker">02</div>
+        <div class="wp-media">
+          <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=800&auto=format&fit=crop" alt="Stack of index cards used for flashcard review">
+        </div>
+      </div>
+ 
+      <div class="waypoint">
+        <div class="wp-copy">
+          <div class="stage-label">Stage 03 — Log</div>
+          <h3>Track your sessions</h3>
+          <p>Every sprint gets logged automatically, so you can see your streak build day by day and turn studying into a habit instead of a scramble.</p>
+        </div>
+        <div class="stage-marker">03</div>
+        <div class="wp-media">
+          <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=800&auto=format&fit=crop" alt="Student taking notes during a focused study session">
+        </div>
+      </div>
+ 
+      <div class="waypoint reverse">
+        <div class="wp-copy">
+          <div class="stage-label">Stage 04 — Measure</div>
+          <h3>Check retention metrics</h3>
+          <p>See exactly which topics are sticking and which ones are fading, with a clear breakdown of recall accuracy over time — not just a study log.</p>
+        </div>
+        <div class="stage-marker">04</div>
+        <div class="wp-media">
+          <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop" alt="Charts showing progress and retention data">
+        </div>
+      </div>
+ 
+      <div class="waypoint">
+        <div class="wp-copy">
+          <div class="stage-label">Stage 05 — Repeat</div>
+          <h3>Resurface what's fading</h3>
+          <p>Cards you're close to forgetting resurface automatically, right before you'd lose them — closing the loop back to Stage 01 with a smarter deck.</p>
+        </div>
+        <div class="stage-marker">05</div>
+        <div class="wp-media">
+          <img src="https://images.unsplash.com/photo-1513258496099-48168024aec0?q=80&w=800&auto=format&fit=crop" alt="Group of students reviewing material together">
+        </div>
+      </div>
+    </div>
+  </section>
+ 
+  <section class="why-panel" id="why">
+    <div class="section-head" style="padding-top:0;">
+      <div class="eyebrow">Why It Works</div>
+      <h2>Built on spaced repetition</h2>
+      <p>Cramming feels productive and fades fast. SkillSprint spaces your reviews out so recall gets stronger — and more durable — every time.</p>
+    </div>
+    <div class="why-grid">
+      <figure>
+        <strong>+38%</strong>
+        <span>Improvement in recall accuracy after switching from cramming to spaced review.</span>
+      </figure>
+      <figure>
+        <strong>15 min</strong>
+        <span>Average daily sprint needed to keep a 40-card deck fresh in memory.</span>
+      </figure>
+      <figure>
+        <strong>6 mo</strong>
+        <span>How long well-spaced material stays retrievable versus days for crammed material.</span>
+      </figure>
+    </div>
+  </section>
+ 
+  <section class="cta-banner">
+    <div class="eyebrow" style="justify-content:center; display:flex;">Ready When You Are</div>
+    <h2>Start your first sprint today.</h2>
+    <a href="register.html" class="cta">Create a free account →</a>
+  </section>
+ 
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <div class="brand">SkillSprint</div>
+        <p>A focused study companion for organizing decks, running recall drills, and proving what's actually sinking in.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#roadmap">How it works</a></li>
+          <li><a href="#why">Why it works</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Account</h4>
+        <ul>
+          <li><a href="login.html">Login</a></li>
+          <li><a href="register.html">Register</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="bottom">Built with Spring Boot, Spring Security (JWT), and MySQL.</div>
+  </footer>
+ 
+  <script>
+    // Reveal waypoints and stat cards as they scroll into view
+    const revealTargets = document.querySelectorAll('.waypoint, .why-grid figure');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('in-view');
+      });
+    }, { threshold: 0.3 });
+    revealTargets.forEach(el => observer.observe(el));
+ 
+    // Draw the trail path in as the roadmap section scrolls by
+    const trailPath = document.getElementById('trail-fg');
+    const track = document.getElementById('roadmap-track');
+    const pathLength = trailPath.getTotalLength();
+    trailPath.style.strokeDasharray = pathLength;
+    trailPath.style.strokeDashoffset = pathLength;
+ 
+    function updateTrail() {
+      const rect = track.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const total = rect.height + vh;
+      const traveled = vh - rect.top;
+      let progress = traveled / total;
+      progress = Math.max(0, Math.min(1, progress));
+      trailPath.style.strokeDashoffset = pathLength * (1 - progress);
+    }
+    window.addEventListener('scroll', updateTrail, { passive: true });
+    window.addEventListener('resize', updateTrail);
+    updateTrail();
+  </script>
+ 
+</body>
+</html>
