@@ -104,7 +104,7 @@ async function addFlashcard(){
         frontContent: document.getElementById("addFront").value,
         backContent: document.getElementById("addBack").value
     };
-    const res = await fetch("${API_URL}/auth/save", {
+    const res = await fetch(`${API_URL}/auth/save`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)
@@ -114,14 +114,14 @@ async function addFlashcard(){
  
 async function getFlashcard(){
     const id = document.getElementById("getId").value;
-    const res = await fetch("${API_URL}/auth/get/" + id);
+    const res = await fetch(`${API_URL}/auth/get/` + id);
     document.getElementById("cardDetails").innerText = res.ok
         ? JSON.stringify(await res.json())
         : "Flashcard not found";
 }
  
 async function loadAllFlashcards(){
-    const res = await fetch("${API_URL}/auth/get");
+    const res = await fetch(`${API_URL}/auth/get`);
     const tbody = document.getElementById("cardBody");
     tbody.innerHTML = "";
     if (res.ok) {
@@ -139,7 +139,7 @@ async function updateFlashcard(){
         frontContent: document.getElementById("editFront").value,
         backContent: document.getElementById("editBack").value
     };
-    const res = await fetch("${API_URL}/auth/get/" + id, {
+    const res = await fetch(`${API_URL}/auth/get/` + id, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)
@@ -149,7 +149,7 @@ async function updateFlashcard(){
  
 async function deleteFlashcard(){
     const id = document.getElementById("deleteId").value;
-    const res = await fetch("${API_URL}/auth/get/" + id, { method: "DELETE" });
+    const res = await fetch(`${API_URL}/auth/get/` + id, { method: "DELETE" });
     msg(res.ok ? "Flashcard deleted successfully!" : "Failed: " + await res.text(), res.ok);
 }
 </script>
