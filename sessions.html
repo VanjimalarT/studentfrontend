@@ -110,7 +110,7 @@ async function addSession(){
         endTime: document.getElementById("addEnd").value,
         score: Number(document.getElementById("addScore").value)
     };
-    const res = await fetch("${API_URL}/auth/getter", {
+    const res = await fetch(`${API_URL}/auth/getter`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)
@@ -120,14 +120,14 @@ async function addSession(){
  
 async function getSession(){
     const id = document.getElementById("getId").value;
-    const res = await fetch("${API_URL}/auth/getter/" + id);
+    const res = await fetch(`${API_URL}/auth/getter/` + id);
     document.getElementById("sessDetails").innerText = res.ok
         ? JSON.stringify(await res.json())
         : "Session not found";
 }
  
 async function loadAllSessions(){
-    const res = await fetch("${API_URL}/auth/getter");
+    const res = await fetch(`${API_URL}/auth/getter`);
     const tbody = document.getElementById("sessBody");
     tbody.innerHTML = "";
     if (res.ok) {
@@ -147,7 +147,7 @@ async function updateSession(){
         endTime: document.getElementById("editEnd").value,
         score: Number(document.getElementById("editScore").value)
     };
-    const res = await fetch("${API_URL}/auth/getter/" + id, {
+    const res = await fetch(`${API_URL}/auth/getter/` + id, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)
@@ -157,7 +157,7 @@ async function updateSession(){
  
 async function deleteSession(){
     const id = document.getElementById("deleteId").value;
-    const res = await fetch("${API_URL}/auth/getter/" + id, { method: "DELETE" });
+    const res = await fetch(`${API_URL}/auth/getter/` + id, { method: "DELETE" });
     msg(res.ok ? "Session deleted successfully!" : "Failed: " + await res.text(), res.ok);
 }
 </script>
